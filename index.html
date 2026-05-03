@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A modern, frontend-only API client. Test REST APIs directly from your browser." />
+    <title>Pulse — API Client</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Inline favicon: a small lightning bolt SVG, no extra request needed -->
+    <link
+        rel="icon"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%236366f1' d='M13 2L3 14h7l-1 8 10-12h-7z'/></svg>"
+    />
+</head>
+<body data-theme="dark">
+    <!-- ============================================== -->
+    <!-- TOP NAVIGATION                                  -->
+    <!-- ============================================== -->
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand__logo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22">
+                    <path fill="currentColor" d="M13 2L3 14h7l-1 8 10-12h-7z" />
+                </svg>
+            </div>
+            <div class="brand__text">
+                <h1>Pulse</h1>
+                <span class="brand__sub">API Client</span>
+            </div>
+        </div>
+
+        <div class="topbar__actions">
+            <!-- Environment dropdown -->
+            <div class="env-picker" id="envPicker">
+                <button class="btn btn--ghost env-picker__btn" id="envBtn" title="Manage environment variables">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 2v20M2 12h20"/>
+                    </svg>
+                    <span id="envLabel">Environment</span>
+                </button>
+            </div>
+
+            <button class="btn btn--ghost" id="importBtn" title="Import requests">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+                <span>Import</span>
+            </button>
+            <button class="btn btn--ghost" id="exportBtn" title="Export requests">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                <span>Export</span>
+            </button>
+            <input type="file" id="importInput" accept="application/json" hidden />
+
+            <button class="btn btn--icon" id="settingsBtn" title="Settings" aria-label="Open settings">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+
+            <button class="btn btn--icon" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">
+                <!-- Sun (visible in dark mode) -->
+                <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+                </svg>
+                <!-- Moon (visible in light mode) -->
+                <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============================================== -->
+    <!-- MAIN LAYOUT                                     -->
+    <!-- ============================================== -->
+    <main class="layout">
+        <!-- Sidebar: history + saved -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar__header">
+                <h2>History</h2>
+                <button class="btn btn--icon btn--small" id="clearHistoryBtn" title="Clear all history" aria-label="Clear history">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="sidebar__search">
+                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m20 20-3.5-3.5"/>
+                </svg>
+                <input type="text" id="historySearch" placeholder="Search history..." />
+            </div>
+            <ul class="history-list" id="historyList" aria-live="polite">
+                <!-- History items injected by JS -->
+            </ul>
+            <div class="sidebar__empty" id="historyEmpty">
+                <p>No requests yet.<br/>Send your first request to see it here.</p>
+            </div>
+        </aside>
+
+        <!-- Mobile sidebar toggle -->
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle history sidebar">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M3 12h18M3 18h18"/>
+            </svg>
+        </button>
+
+        <!-- Workspace -->
+        <section class="workspace">
+            <!-- ===== Request bar ===== -->
+            <div class="card request-bar">
+                <div class="request-bar__row">
+                    <select id="methodSelect" class="method-select" aria-label="HTTP method">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="PATCH">PATCH</option>
+                        <option value="DELETE">DELETE</option>
+                        <option value="OPTIONS">OPTIONS</option>
+                        <option value="HEAD">HEAD</option>
+                    </select>
+                    <input
+                        type="text"
+                        id="urlInput"
+                        class="url-input"
+                        placeholder="https://api.example.com/endpoint   (use {{base_url}} for env vars)"
+                        spellcheck="false"
+                        autocomplete="off"
+                    />
+                    <button class="btn btn--primary send-btn" id="sendBtn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                        <span>Send</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== Request tabs ===== -->
+            <div class="card request-tabs">
+                <nav class="tabs" role="tablist" aria-label="Request configuration">
+                    <button class="tab tab--active" data-tab="params" role="tab" aria-selected="true">
+                        Params <span class="tab__badge" id="paramsBadge"></span>
+                    </button>
+                    <button class="tab" data-tab="headers" role="tab" aria-selected="false">
+                        Headers <span class="tab__badge" id="headersBadge"></span>
+                    </button>
+                    <button class="tab" data-tab="body" role="tab" aria-selected="false">
+                        Body <span class="tab__badge" id="bodyBadge"></span>
+                    </button>
+                    <button class="tab" data-tab="variables" role="tab" aria-selected="false">
+                        Variables
+                    </button>
+                </nav>
+
+                <!-- Params panel -->
+                <div class="tab-panel tab-panel--active" data-panel="params" role="tabpanel">
+                    <div class="kv-editor" id="paramsEditor" data-kv="params"></div>
+                    <button class="btn btn--ghost btn--small kv-add" data-add="params">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Add parameter
+                    </button>
+                </div>
+
+                <!-- Headers panel -->
+                <div class="tab-panel" data-panel="headers" role="tabpanel">
+                    <div class="kv-editor" id="headersEditor" data-kv="headers"></div>
+                    <button class="btn btn--ghost btn--small kv-add" data-add="headers">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Add header
+                    </button>
+                </div>
+
+                <!-- Body panel -->
+                <div class="tab-panel" data-panel="body" role="tabpanel">
+                    <div class="body-type-selector" id="bodyTypeSelector" role="radiogroup" aria-label="Body type">
+                        <label class="radio-pill"><input type="radio" name="bodyType" value="none" checked /><span>None</span></label>
+                        <label class="radio-pill"><input type="radio" name="bodyType" value="json" /><span>JSON</span></label>
+                        <label class="radio-pill"><input type="radio" name="bodyType" value="form-data" /><span>form-data</span></label>
+                        <label class="radio-pill"><input type="radio" name="bodyType" value="urlencoded" /><span>x-www-form-urlencoded</span></label>
+                    </div>
+
+                    <!-- Raw JSON area -->
+                    <div class="body-content" id="bodyJson" hidden>
+                        <div class="body-toolbar">
+                            <button class="btn btn--ghost btn--small" id="formatJsonBtn" title="Auto-format JSON">
+                                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h16"/>
+                                </svg>
+                                Beautify
+                            </button>
+                            <span class="body-toolbar__hint" id="jsonValidity"></span>
+                        </div>
+                        <textarea
+                            id="bodyJsonInput"
+                            class="code-editor"
+                            spellcheck="false"
+                            placeholder='{ "key": "value" }'
+                        ></textarea>
+                    </div>
+
+                    <!-- form-data -->
+                    <div class="body-content" id="bodyFormData" hidden>
+                        <div class="kv-editor" id="formDataEditor" data-kv="formData"></div>
+                        <button class="btn btn--ghost btn--small kv-add" data-add="formData">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/>
+                            </svg>
+                            Add field
+                        </button>
+                    </div>
+
+                    <!-- url-encoded -->
+                    <div class="body-content" id="bodyUrlEncoded" hidden>
+                        <div class="kv-editor" id="urlEncodedEditor" data-kv="urlEncoded"></div>
+                        <button class="btn btn--ghost btn--small kv-add" data-add="urlEncoded">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/>
+                            </svg>
+                            Add field
+                        </button>
+                    </div>
+
+                    <!-- None -->
+                    <div class="body-content body-empty" id="bodyNone">
+                        <p>This request has no body.</p>
+                    </div>
+                </div>
+
+                <!-- Variables panel -->
+                <div class="tab-panel" data-panel="variables" role="tabpanel">
+                    <p class="panel-hint">
+                        Define environment variables and reference them anywhere using
+                        <code>{{variable_name}}</code> — in URL, headers, params, or body.
+                    </p>
+                    <div class="kv-editor" id="variablesEditor" data-kv="variables"></div>
+                    <button class="btn btn--ghost btn--small kv-add" data-add="variables">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Add variable
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== Response panel ===== -->
+            <div class="card response-panel" id="responsePanel">
+                <div class="response-panel__header">
+                    <h2>Response</h2>
+                    <div class="response-meta" id="responseMeta">
+                        <span class="response-meta__placeholder">Send a request to see the response</span>
+                    </div>
+                </div>
+
+                <nav class="tabs tabs--secondary" role="tablist" aria-label="Response sections">
+                    <button class="tab tab--active" data-rtab="rbody" role="tab" aria-selected="true">Body</button>
+                    <button class="tab" data-rtab="rheaders" role="tab" aria-selected="false">
+                        Headers <span class="tab__badge" id="rHeadersBadge"></span>
+                    </button>
+                    <button class="tab" data-rtab="rcurl" role="tab" aria-selected="false">cURL</button>
+                </nav>
+
+                <!-- Response body -->
+                <div class="response-tab response-tab--active" data-rpanel="rbody" role="tabpanel">
+                    <div class="response-toolbar">
+                        <button class="btn btn--ghost btn--small" id="copyResponseBtn" title="Copy to clipboard">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                <rect x="9" y="9" width="13" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path fill="none" stroke="currentColor" stroke-width="2" d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            Copy
+                        </button>
+                        <button class="btn btn--ghost btn--small" id="wrapToggleBtn" title="Toggle line wrapping">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M3 12h15a3 3 0 0 1 0 6h-4l3-3m0 6l-3-3M3 18h6"/>
+                            </svg>
+                            Wrap
+                        </button>
+                    </div>
+                    <pre id="responseBody" class="response-body"><code class="placeholder">No response yet.</code></pre>
+                </div>
+
+                <!-- Response headers -->
+                <div class="response-tab" data-rpanel="rheaders" role="tabpanel">
+                    <div class="response-headers" id="responseHeaders">
+                        <p class="placeholder">No response yet.</p>
+                    </div>
+                </div>
+
+                <!-- cURL -->
+                <div class="response-tab" data-rpanel="rcurl" role="tabpanel">
+                    <div class="response-toolbar">
+                        <button class="btn btn--ghost btn--small" id="copyCurlBtn">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                <rect x="9" y="9" width="13" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path fill="none" stroke="currentColor" stroke-width="2" d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            Copy cURL
+                        </button>
+                    </div>
+                    <pre id="curlPreview" class="response-body"><code class="placeholder">cURL command will appear here.</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============================================== -->
+    <!-- SETTINGS MODAL                                   -->
+    <!-- ============================================== -->
+    <div class="modal" id="settingsModal" hidden>
+        <div class="modal__backdrop" data-close-modal></div>
+        <div class="modal__panel" role="dialog" aria-labelledby="settingsTitle" aria-modal="true">
+            <header class="modal__header">
+                <h2 id="settingsTitle">Settings</h2>
+                <button class="btn btn--icon" id="closeSettingsBtn" aria-label="Close" data-close-modal>
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M6 18L18 6"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="modal__body">
+                <section class="settings-section">
+                    <h3>Smart Mode</h3>
+                    <p class="settings-section__desc">
+                        Pulse will quietly do the right thing when a request would otherwise fail — especially behind corporate firewalls.
+                    </p>
+
+                    <label class="toggle-row">
+                        <div class="toggle-row__text">
+                            <span class="toggle-row__title">Auto-add common headers</span>
+                            <span class="toggle-row__sub">Adds <code>Accept: */*</code> and <code>Content-Type</code> when not specified.</span>
+                        </div>
+                        <span class="toggle">
+                            <input type="checkbox" id="autoHeadersToggle" />
+                            <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        </span>
+                    </label>
+
+                    <label class="toggle-row">
+                        <div class="toggle-row__text">
+                            <span class="toggle-row__title">Auto-retry through CORS proxy on failure</span>
+                            <span class="toggle-row__sub">When a direct request is blocked, automatically try proxy providers until one succeeds.</span>
+                        </div>
+                        <span class="toggle">
+                            <input type="checkbox" id="autoProxyToggle" />
+                            <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        </span>
+                    </label>
+
+                    <label class="toggle-row">
+                        <div class="toggle-row__text">
+                            <span class="toggle-row__title">Cascade through all proxies</span>
+                            <span class="toggle-row__sub">Try every available proxy (not just one) until a response comes back. Ideal for corp networks.</span>
+                        </div>
+                        <span class="toggle">
+                            <input type="checkbox" id="proxyCascadeToggle" />
+                            <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        </span>
+                    </label>
+
+                    <label class="toggle-row">
+                        <div class="toggle-row__text">
+                            <span class="toggle-row__title">Always send through proxy</span>
+                            <span class="toggle-row__sub">Skip the direct attempt entirely. Fastest option behind a strict corporate firewall.</span>
+                        </div>
+                        <span class="toggle">
+                            <input type="checkbox" id="alwaysProxyToggle" />
+                            <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        </span>
+                    </label>
+                </section>
+
+                <section class="settings-section">
+                    <h3>CORS Proxy Providers</h3>
+                    <p class="settings-section__desc">
+                        Pulse includes 5 built-in providers and cascades through them automatically.
+                        Run a network check to see which ones work from your network.
+                    </p>
+
+                    <div class="settings-row-actions">
+                        <button class="btn btn--ghost btn--small" id="healthCheckBtn">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                            Test network connectivity
+                        </button>
+                    </div>
+
+                    <div class="proxy-health" id="proxyHealthResults">
+                        <span class="health-hint">Click "Test network connectivity" to see which proxies are reachable from this network.</span>
+                    </div>
+
+                    <label class="settings-field">
+                        <span>Preferred proxy</span>
+                        <select id="preferredProxySelect">
+                            <option value="auto">Auto (try all, fastest first)</option>
+                            <option value="corsproxy">corsproxy.io</option>
+                            <option value="allorigins">allorigins.win</option>
+                            <option value="thingproxy">thingproxy (freeboard)</option>
+                            <option value="corsproxy_org">corsproxy.org</option>
+                            <option value="codetabs">codetabs.com</option>
+                            <option value="custom">Custom…</option>
+                        </select>
+                    </label>
+
+                    <label class="settings-field" id="customProxyField" hidden>
+                        <span>Custom proxy URL template</span>
+                        <input type="text" id="proxyTemplateInput" placeholder="https://your-proxy.example.com/?url={url}" spellcheck="false" />
+                        <small>Use <code>{url}</code> (URL-encoded) or <code>{raw_url}</code> (plain) where the target should appear.</small>
+                    </label>
+
+                    <div class="settings-warning">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        </svg>
+                        <span>Public proxies see your request headers and body. For internal/production APIs, deploy your own proxy (Cloudflare Worker or internal server).</span>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>Corporate Network Tips</h3>
+                    <p class="settings-section__desc" style="margin-bottom: 0; line-height: 1.7;">
+                        If all proxies show "blocked" after a connectivity test:<br/>
+                        ① Ask IT to whitelist one of the proxy domains above, <strong>or</strong><br/>
+                        ② Deploy a CORS proxy on an <em>internal</em> host (even <code>http://localhost:9999</code> works) and add it as Custom.<br/>
+                        The browser already uses your system/corporate proxy for all outbound requests — Pulse can't bypass that, but a whitelisted CORS relay solves it.
+                    </p>
+                </section>
+            </div>
+
+            <footer class="modal__footer">
+                <button class="btn btn--ghost" id="resetSettingsBtn">Reset to defaults</button>
+                <button class="btn btn--primary" data-close-modal>Done</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Toast container for notifications -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- Loading overlay shown while a request is in flight -->
+    <div class="loading-bar" id="loadingBar" aria-hidden="true"></div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
